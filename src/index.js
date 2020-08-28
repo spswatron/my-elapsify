@@ -46,9 +46,9 @@ class List extends React.Component {
   render() {
     const ranger = Array(<>{this.props.entries.length}</>).keys()
     return(
-      <div>
-      0
-      </div>
+      {ranger}.map(
+        j => {this.renderEntry(j)}
+      )
     )
   }
 }
@@ -77,7 +77,7 @@ class ToDo extends React.Component {
           entries = {this.state.entries}
         />
         <Submit
-          submitted = {this.handleSubmit}
+          submitted = {i => this.handleSubmit}
         />
         <Input
           typed = {this.state.content}
