@@ -2,9 +2,10 @@ import React from 'react';
 import ReactDOM from 'react-dom';
 import './index.css';
 import * as serviceWorker from './serviceWorker';
-import Checkbox from 'muicss/lib/react/checkbox';
 import { Helmet } from 'react-helmet';
 import 'bootstrap/dist/css/bootstrap.min.css';
+import ls from 'local-storage';
+
 
 class Title extends React.Component {
     render() {
@@ -99,7 +100,7 @@ class Entry extends React.Component {
         const timeString = fullTimeConvert(elapsed)
         // timeAlert(this.props.curTime - this.props.startTimes[this.props.i], this.props.content)
         return(
-            <tr>
+            <tr key={this.props.i}>
               <td style = {{width: 200}} className={this.props.class}>
                 {this.props.content}
               </td>
@@ -152,17 +153,18 @@ class ToDo extends React.Component {
   constructor(props) {
     super(props);
     const newDate = new Date()
+    const xyz = ls.get('startTimes')
     this.state = {
-      entries: [],
+      entries: ls.get('entries') || [],
       content: "",
-      checked: false,
-      startTimes: [],
-      activeStarts: [],
-      stopTimes: [],
+      checked: ls.get('checked') || false,
+      startTimes: dParse(ls.get('startTimes')) || [],
+      activeStarts: dParse(ls.get('activeStarts')) || [],
+      stopTimes: dParse(ls.get('stopTimes')) || [],
       curTime: newDate,
       date: newDate.getDay(),
-      classes: [],
-      ranger: []
+      classes: ls.get('classes') || [],
+      ranger: ls.get('ranger') || []
     };
   }
 
@@ -188,6 +190,12 @@ class ToDo extends React.Component {
                 classes: newClasses,
                 ranger: newRanger
             })
+            ls.set('entries', newList)
+            ls.set('startTimes', newDates)
+            ls.set('activeStarts', newActives)
+            ls.set('stopTimes', newStops)
+            ls.set('classes', newClasses)
+            ls.set('ranger', newRanger)
         }
         else {
             this.setState({
@@ -215,6 +223,12 @@ class ToDo extends React.Component {
             classes: newClasses,
             ranger: newRanger
         });
+        ls.set('entries', newList)
+        ls.set('startTimes', newDates)
+        ls.set('activeStarts', newActives)
+        ls.set('stopTimes', newStops)
+        ls.set('classes', newClasses)
+        ls.set('ranger', newRanger)
     }
   }
 
@@ -224,6 +238,7 @@ class ToDo extends React.Component {
           checked: opp,
           date: (new Date()).getDay()
       })
+      ls.set('checked', opp)
   }
 
   handleChange(event){
@@ -266,6 +281,9 @@ class ToDo extends React.Component {
               activeStarts: new_actives,
               stopTimes: new_stops
           })
+          ls.set('activeStarts', new_actives)
+          ls.set('stopTimes', new_stops)
+          ls.set('classes', new_list)
       }
   }
 
@@ -284,6 +302,12 @@ class ToDo extends React.Component {
           classes: new_classes,
           ranger: new_ranger
       })
+      ls.set('entries', new_entries)
+      ls.set('startTimes', new_startTimes)
+      ls.set('activeStarts', new_actives)
+      ls.set('stopTimes', new_stopTimes)
+      ls.set('classes', new_classes)
+      ls.set('ranger', new_ranger)
   }
 
   render(){
@@ -423,6 +447,15 @@ function activeLengthen(active, content){
         temp = temp.concat(newDate).concat(content[i])
     }
     return temp
+}
+
+function dParse(list){
+    if(list !== null){
+        return list.map(j=>j > 0 ? j : Date.parse(j))
+    }
+    else{
+        return null
+    }
 }
 
 ReactDOM.render(
