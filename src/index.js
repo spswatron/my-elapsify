@@ -2,16 +2,55 @@ import React from 'react';
 import ReactDOM from 'react-dom';
 import './index.css';
 import * as serviceWorker from './serviceWorker';
+import Checkbox from 'muicss/lib/react/checkbox';
+import { Helmet } from 'react-helmet';
+import 'bootstrap/dist/css/bootstrap.min.css';
 
+class Title extends React.Component {
+    render() {
+        let time = 'Elapsify'
+        let task = "Elapsify"
+        if (this.props.activeStarts.length > 0){
+            time = fullTimeConvert(this.props.curTime - this.props.activeStarts[0])
+            task = (' -> ').concat(this.props.activeStarts[1])
+            task = this.props.activeStarts[1]
+        }
+        return(
+            <Helmet>
+                <title onBlur={() => this.props.blurTitle()}>{task}</title>
+            </Helmet>
+        )
+    }
+}
+
+class MorningRoutine extends React.Component {
+    render() {
+        return (
+            <div className="form-check" style={{display: 'inline-block', height: 38, margin: 0}}>
+                <input className="form-check-input"
+                       type="checkbox" value={this.props.checked}
+                       onChange={() => this.props.checkChange()}
+                       id="defaultCheck1"/>
+                    <label className="form-check-label" htmlFor="defaultCheck1">
+                        morning routine
+                    </label>
+            </div>
+        )
+    }
+}
 
 class Input extends React.Component {
   render() {
     return(
-      <form className="input">
-        <input type="text" value={this.props.typed} 
-          onChange={this.props.changes} onKeyPress={this.props.enterCheck}
-        />
-      </form>
+      <input type="text" className="form-control"
+               style ={{marginRight: '20'}}
+               placeholder="Todo..."
+               aria-label="Todo"
+               aria-describedby="basic-addon2"
+               value={this.props.typed}
+               onChange={this.props.changes}
+               onKeyPress={this.props.enterCheck}
+      />
     );
   }
 }
@@ -19,7 +58,9 @@ class Input extends React.Component {
 class Submit extends React.Component {
   render() {
     return(
-      <button className="submit" onClick={() => this.props.submitted()}>
+      <button type="button"
+              style ={{marginTop:20}}
+              className="btn btn-light" value="Submit" onClick={() => this.props.submitted()}>
         Submit
       </button>
     );
@@ -29,7 +70,7 @@ class Submit extends React.Component {
 function Finish (props) {
     return(
         <td>
-            <button className="finish" onClick={() => props.finish(props.i)}>
+            <button type="button" className="btn btn-outline-secondary" onClick={() => props.finish(props.i)}>
                 finished
             </button>
         </td>
@@ -39,7 +80,7 @@ function Finish (props) {
 function Clear(props) {
     return(
         <td>
-            <button className="clear" onClick={() => props.clear(props.i)}>
+            <button type="button" className = "btn btn-outline-secondary" onClick={() => props.clear(props.i)}>
                 clear
             </button>
         </td>
@@ -55,17 +96,15 @@ class Entry extends React.Component {
         else{
             elapsed =  (this.props.curTime - this.props.startTimes[this.props.i])
         }
-        const seconds = returnTime(elapsed, 'second').toString()
-        const minutes = returnTime(elapsed, 'minute').toString()
-        const hours = returnTime(elapsed, 'hour').toString()
-        timeAlert(this.props.curTime - this.props.startTimes[this.props.i], this.props.content)
+        const timeString = fullTimeConvert(elapsed)
+        // timeAlert(this.props.curTime - this.props.startTimes[this.props.i], this.props.content)
         return(
             <tr>
-              <td className={this.props.class}>
+              <td style = {{width: 200}} className={this.props.class}>
                 {this.props.content}
               </td>
               <td>
-                  {hours}:{minutes}:{seconds} elapsed
+                  {timeString} elapsed
               </td>
               <Finish
                   finish={this.props.finished}
@@ -95,7 +134,7 @@ class List extends React.Component {
       />
     );
   }
-  
+
   render() {
     return(
       <React.Fragment>
@@ -112,12 +151,16 @@ class List extends React.Component {
 class ToDo extends React.Component {
   constructor(props) {
     super(props);
+    const newDate = new Date()
     this.state = {
       entries: [],
       content: "",
+      checked: false,
       startTimes: [],
+      activeStarts: [],
       stopTimes: [],
-      curTime: new Date(),
+      curTime: newDate,
+      date: newDate.getDay(),
       classes: [],
       ranger: []
     };
@@ -125,26 +168,62 @@ class ToDo extends React.Component {
 
   componentDidMount() {
       setInterval(() => {
-        this.setState({
-            curTime: new Date()
-        })
+        const newDate = new Date()
+        if(this.state.checked && !(this.state.curTime.getDay() === this.state.date)) {
+            const contentList = ['100 push-ups', '100 lunges', '1 mile run',
+            'shower', 'read Bible', 'journal', 'eat Chia', 'make Chia']
+            const newList = this.state.entries.concat(contentList)
+            const newDates = this.state.startTimes.concat(new Array(8).fill(newDate))
+            const newActives = activeLengthen(this.state.activeStarts, contentList)
+            const newClasses = this.state.classes.concat(new Array(8).fill('un-crossed'))
+            const newRanger = rangersLengthen(this.state.ranger, 8)
+            const newStops= this.state.stopTimes.concat(new Array(8).fill(newDate))
+            this.setState({
+                curTime: newDate,
+                date: newDate.getDay(),
+                entries: newList,
+                startTimes: newDates,
+                activeStarts: newActives,
+                stopTimes: newStops,
+                classes: newClasses,
+                ranger: newRanger
+            })
+        }
+        else {
+            this.setState({
+                curTime: newDate
+            })
+        }
       }, 1000)
     }
   
   handleSubmit() {
-    const newList = this.state.entries.concat(this.state.content)
-    const newDates = this.state.startTimes.concat(new Date())
-    const newClasses = this.state.classes.concat('un-crossed')
-    const newRanger = this.state.ranger.concat(this.state.ranger.length)
-    const newStops= this.state.ranger.concat(new Date())
-    this.setState({
-      entries: newList,
-      content: "",
-      startTimes: newDates,
-      stopTimes: newStops,
-      classes: newClasses,
-      ranger: newRanger
-    });
+    if(this.state.content !== '') {
+        const newDate = new Date()
+        const newList = this.state.entries.concat(this.state.content)
+        const newDates = this.state.startTimes.concat(newDate)
+        const newActives = this.state.activeStarts.concat(newDate).concat(this.state.content)
+        const newClasses = this.state.classes.concat('un-crossed')
+        const newRanger = this.state.ranger.concat(this.state.ranger.length)
+        const newStops = this.state.stopTimes.concat(newDate)
+        this.setState({
+            entries: newList,
+            content: "",
+            startTimes: newDates,
+            activeStarts: newActives,
+            stopTimes: newStops,
+            classes: newClasses,
+            ranger: newRanger
+        });
+    }
+  }
+
+  checkChange(){
+      const opp = !this.state.checked
+      this.setState ({
+          checked: opp,
+          date: (new Date()).getDay()
+      })
   }
 
   handleChange(event){
@@ -160,26 +239,47 @@ class ToDo extends React.Component {
       }
   }
 
+  blurTitle(){
+    let time = 'Elapsify'
+    let task = ''
+    if (this.state.activeStarts.length > 0){
+            time = fullTimeConvert(this.state.curTime - this.state.activeStarts[0])
+            task = (' -> ').concat(this.state.activeStarts[1])
+    }
+    return(
+          <Helmet>
+            <title>{time}{task}</title>
+          </Helmet>
+        )
+    }
+
   finished(i) {
-      const new_list = this.state.ranger.map(
-          j => ((i === j) ? 'cross' : this.state.classes[j]))
-      const new_stops = this.state.ranger.map(
-          j => ((i === j) ? new Date() : this.state.stopTimes[j]))
-      this.setState({
-          classes: new_list,
-          stopTimes: new_stops
-      })
+      if(this.state.startTimes[i].getTime() ===
+          this.state.stopTimes[i].getTime()) {
+          const new_list = this.state.ranger.map(
+              j => ((i === j) ? 'cross' : this.state.classes[j]))
+          const new_stops = this.state.ranger.map(
+              j => ((i === j) ? new Date() : this.state.stopTimes[j]))
+          const new_actives = maintainActive(this.state.activeStarts, this.state.startTimes[i])
+          this.setState({
+              classes: new_list,
+              activeStarts: new_actives,
+              stopTimes: new_stops
+          })
+      }
   }
 
   clear(i) {
       const new_entries = removeIndex(this.state.entries, i)
+      const new_actives = maintainActive(this.state.activeStarts, this.state.startTimes[i])
       const new_startTimes = removeIndex(this.state.startTimes, i)
       const new_stopTimes = removeIndex(this.state.stopTimes, i)
       const new_classes = removeIndex(this.state.classes, i)
-      const new_ranger = withoutLast(this.state.ranger)
+      const new_ranger = removeIndex(this.state.ranger, this.state.ranger.length - 1)
       this.setState({
           entries: new_entries,
           startTimes: new_startTimes,
+          activeStarts: new_actives,
           stopTimes: new_stopTimes,
           classes: new_classes,
           ranger: new_ranger
@@ -188,8 +288,16 @@ class ToDo extends React.Component {
 
   render(){
     return(
-      <div>
-        <table>
+      <div style={{padding: 20}}>
+         <Title
+             blurTitle={this.blurTitle.bind(this)}
+             curTime = {this.state.curTime}
+             activeStarts = {this.state.activeStarts}
+         />
+         <h3 style={{width: 500, textAlign: "center"}}>
+                  Elapsify
+         </h3>
+         <table style={{width: 500}} className="table">
           <List
             classes = {this.state.classes}
             curTime = {this.state.curTime}
@@ -201,11 +309,23 @@ class ToDo extends React.Component {
             stopTimes={this.state.stopTimes}
           />
         </table>
-        <Input
-          typed = {this.state.content}
-          changes= {this.handleChange.bind(this)}
-          enterCheck = {this.enterCheck.bind(this)}
-        />
+          <div className="container" style={{marginLeft: 0, marginTop: 0}} >
+              <div className="row" style={{width: 500, padding: 0, alignContent: 'left', alignSelf: 'left'}}>
+                  <div className="col-sm" style={{paddingLeft: 0}}>
+                      <Input
+                          typed = {this.state.content}
+                          changes= {this.handleChange.bind(this)}
+                          enterCheck = {this.enterCheck.bind(this)}
+                      />
+                  </div>
+                  <div className="col-sm" style={{maxWidth: 160, paddingRight: 10, verticalAlign: 'sub'}}>
+                      <MorningRoutine
+                          checked= {this.state.checked}
+                          checkChange={this.checkChange.bind(this)}
+                      />
+                  </div>
+              </div>
+          </div>
         <Submit
           submitted = {() => this.handleSubmit()}
         />
@@ -223,12 +343,22 @@ function returnTime(duration, unit){
         return Math.floor((duration / (1000 * 60)) % 60)
     }
     else if (unit === 'hour'){
-        return Math.floor((duration / (1000 * 60 * 60)) % 24)
+        return Math.floor((duration / (1000 * 60 * 60)) % 24) +
+            24 * Math.floor((duration / (1000 * 60 * 60)) / 24)
     }
 }
 
 function isInt(num){
     return num % 1 === 0
+}
+
+function toTimeString(num){
+    if(num < 10 && num > -10){
+        return "0" + num.toString()
+    }
+    else{
+        return num.toString()
+    }
 }
 
 function timeAlert(elapsed, content){
@@ -252,25 +382,47 @@ function timeAlert(elapsed, content){
 }
 
 function removeIndex(list, j){
-    let toReturn = []
-    var i
-    for (i = 0; i < list; i++){
-        if(i !== j){
-            toReturn = toReturn.concat(list[i])
-        }
-    }
-    return toReturn
+    list.splice(j, 1)
+    return list
 }
 
-function withoutLast(list){
-   let toReturn = []
-    var i
-    for (i = 0; i < list; i++){
-        if(i !== list.length - 1){
-            toReturn = toReturn.concat(list[i])
+function maintainActive(list, item){
+    var i;
+    for (i = 0; i < list.length; i++) {
+        if(i % 2 ===0){
+            if(list[i].getTime()===item.getTime()){
+                list.splice(i, 2)
+            }
         }
     }
-    return toReturn
+    return list
+}
+
+function fullTimeConvert(elapsed) {
+      const seconds = toTimeString(returnTime(elapsed, 'second'))
+      const minutes = toTimeString(returnTime(elapsed, 'minute'))
+      const hours = toTimeString(returnTime(elapsed, 'hour'))
+      return hours.concat(":").concat(minutes).concat(":").concat(seconds)
+}
+
+function rangersLengthen(ranger, num){
+    let numCheck = num
+    let newRange = ranger
+    while(numCheck > 0){
+        newRange = newRange.concat(newRange.length)
+        numCheck -= 1
+    }
+    return newRange
+}
+
+function activeLengthen(active, content){
+    let temp = active
+    let newDate = new Date()
+    let i
+    for (i = 0; i < content.length; i++) {
+        temp = temp.concat(newDate).concat(content[i])
+    }
+    return temp
 }
 
 ReactDOM.render(
