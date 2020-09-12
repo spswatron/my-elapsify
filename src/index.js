@@ -269,8 +269,8 @@ class ToDo extends React.Component {
     }
 
   finished(i) {
-      if(this.state.startTimes[i].getTime() ===
-          this.state.stopTimes[i].getTime()) {
+      if(this.state.startTimes[i].valueOf() ===
+          this.state.stopTimes[i].valueOf()) {
           const new_list = this.state.ranger.map(
               j => ((i === j) ? 'cross' : this.state.classes[j]))
           const new_stops = this.state.ranger.map(
@@ -281,9 +281,9 @@ class ToDo extends React.Component {
               activeStarts: new_actives,
               stopTimes: new_stops
           })
+          ls.set('classes', new_list)
           ls.set('activeStarts', new_actives)
           ls.set('stopTimes', new_stops)
-          ls.set('classes', new_list)
       }
   }
 
@@ -414,7 +414,7 @@ function maintainActive(list, item){
     var i;
     for (i = 0; i < list.length; i++) {
         if(i % 2 ===0){
-            if(list[i].getTime()===item.getTime()){
+            if(list[i].valueOf()===item.valueOf()){
                 list.splice(i, 2)
             }
         }
