@@ -157,7 +157,7 @@ class ToDo extends React.Component {
     this.state = {
       entries: ls.get('entries') || [],
       content: "",
-      checked: ls.get('checked') || false,
+      checked: false,
       startTimes: dParse(ls.get('startTimes')) || [],
       activeStarts: dParse(ls.get('activeStarts')) || [],
       stopTimes: dParse(ls.get('stopTimes')) || [],
@@ -238,7 +238,6 @@ class ToDo extends React.Component {
           checked: opp,
           date: (new Date()).getDay()
       })
-      ls.set('checked', opp)
   }
 
   handleChange(event){
