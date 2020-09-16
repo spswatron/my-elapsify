@@ -9,8 +9,8 @@ import ls from 'local-storage';
 
 class Title extends React.Component {
     render() {
-        let time = 'Elapsify'
-        let task = "Elapsify"
+        let time = 'Carpe'
+        let task = "Carpe"
         if (this.props.activeStarts.length > 0){
             time = fullTimeConvert(this.props.curTime - this.props.activeStarts[0])
             task = (' -> ').concat(this.props.activeStarts[1])
@@ -254,7 +254,7 @@ class ToDo extends React.Component {
   }
 
   blurTitle(){
-    let time = 'Elapsify'
+    let time = 'Carpe'
     let task = ''
     if (this.state.activeStarts.length > 0){
             time = fullTimeConvert(this.state.curTime - this.state.activeStarts[0])
@@ -318,7 +318,7 @@ class ToDo extends React.Component {
              activeStarts = {this.state.activeStarts}
          />
          <h3 style={{width: 500, textAlign: "center"}}>
-                  Elapsify
+                  Carpe
          </h3>
          <table style={{width: 500}} className="table">
           <List
@@ -332,19 +332,13 @@ class ToDo extends React.Component {
             stopTimes={this.state.stopTimes}
           />
         </table>
-          <div className="container" style={{marginLeft: 0, marginTop: 0}} >
+           <div className="container" style={{marginLeft: 0, marginTop: 0}} >
               <div className="row" style={{width: 500, padding: 0, alignContent: 'left', alignSelf: 'left'}}>
                   <div className="col-sm" style={{paddingLeft: 0}}>
                       <Input
                           typed = {this.state.content}
                           changes= {this.handleChange.bind(this)}
                           enterCheck = {this.enterCheck.bind(this)}
-                      />
-                  </div>
-                  <div className="col-sm" style={{maxWidth: 160, paddingRight: 10, verticalAlign: 'sub'}}>
-                      <MorningRoutine
-                          checked= {this.state.checked}
-                          checkChange={this.checkChange.bind(this)}
                       />
                   </div>
               </div>
