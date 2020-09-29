@@ -24,6 +24,18 @@ class Title extends React.Component {
     }
 }
 
+class NewTitle extends React.PureComponent {
+  render () {
+    return (
+      <>
+        <Helmet>
+          <title>Homework Tracker</title>
+        </Helmet>
+      </>
+    )
+  }
+}
+
 class MorningRoutine extends React.Component {
     render() {
         return (
@@ -59,11 +71,13 @@ class Input extends React.Component {
 class Submit extends React.Component {
   render() {
     return(
-      <button type="button"
-              style ={{marginTop:20}}
-              className="btn btn-light" value="Submit" onClick={() => this.props.submitted()}>
-        Submit
-      </button>
+      <div style={{width: 500, alignItems: 'center'}}>
+          <button type="button"
+                  style ={{marginTop:20}}
+                  className="btn btn-light" value="Submit" onClick={() => this.props.submitted()}>
+            Submit
+          </button>
+      </div>
     );
   }
 }
@@ -312,11 +326,12 @@ class ToDo extends React.Component {
   render(){
     return(
       <div style={{padding: 20}}>
-         <Title
-             blurTitle={this.blurTitle.bind(this)}
-             curTime = {this.state.curTime}
-             activeStarts = {this.state.activeStarts}
-         />
+         {/*<Title*/}
+         {/*    blurTitle={this.blurTitle.bind(this)}*/}
+         {/*    curTime = {this.state.curTime}*/}
+         {/*    activeStarts = {this.state.activeStarts}*/}
+         {/*/>*/}
+         <NewTitle />
          <h3 style={{width: 500, textAlign: "center"}}>
                   Carpe
          </h3>
